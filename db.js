@@ -1,22 +1,26 @@
 // db.js
 const mysql = require("mysql2");
 
-// database connection setup
-const db = mysql.createConnection({
-  host: "localhost",     // apka computer
-  user: "root",          // MySQL username
-  password: "",          // MySQL password, agar hai to yaha dal do
-  database: "raag_meds", // jo database tum php me use kar rahe the
-  port: 3306             // default MySQL port
+// MySQL CONNECTION POOL
+const db = mysql.createPool({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "raag_meds",
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-// connect check
-db.connect((err) => {
+// test connection
+db.getConnection((err, connection) => {
   if (err) {
-    console.error("Database connection failed:", err);
+    console.error("❌ MySQL connection failed:", err.message);
     return;
   }
-  console.log("MySQL connected successfully!");
+  console.log("✅ MySQL pool connected successfully!");
+  connection.release(); // IMPORTANT
 });
 
-module.exports = db; // ye export kar rahe hain taaki baki files use kar saken
+module.exports = db;

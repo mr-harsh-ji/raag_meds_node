@@ -1,5 +1,5 @@
 // db.js
-const mysql = require("mysql2/promise"); // ✅ promise version
+const mysql = require("mysql2/promise");
 
 // MySQL CONNECTION POOL
 const db = mysql.createPool({
@@ -13,11 +13,11 @@ const db = mysql.createPool({
   queueLimit: 0
 });
 
-// test connection
+// Test connection
 (async () => {
   try {
     const connection = await db.getConnection();
-    console.log("✅ MySQL pool connected successfully!");
+    console.log("✅ MySQL connected successfully!");
     connection.release();
   } catch (err) {
     console.error("❌ MySQL connection failed:", err.message);

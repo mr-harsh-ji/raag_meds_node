@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RAAG MEDS Frontend</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    input, button { padding: 5px; margin: 5px 0; }
+    button { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>RAAG MEDS 📋</h1>
+
+  <h3>Add New Medicine</h3>
+  <input type="text" id="name" placeholder="Name">
+  <input type="number" id="price" placeholder="Price">
+  <input type="number" id="stock" placeholder="Stock">
+  <button onclick="addMedicine()">Add</button>
+
+  <h3>Medicines List</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Price</th><th>Stock</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="medicinesTable"></tbody>
+  </table>
+
+  <script>
+    const apiUrl = "http://127.0.0.1:1100/medicines";
+
+    // Fetch all medicines and show in table
+    function loadMedicines() {
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById("medicinesTable");
+          tbody.innerHTML = "";
+          data.forEach(m => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${m.id}</td>
+                <td><input value="${m.name}" id="name-${m.id}"></td>
+                <td><input type="number" value="${m.price}" id="price-${m.id}"></td>
+                <td><input type="number" value="${m.stock}" id="stock-${m.id}"></td>
+                <td>
+                  <button onclick="updateMedicine(${m.id})">Update</button>
+                  <button onclick="deleteMedicine(${m.id})">Delete</button>
+                </td>
+              </tr>
+            `;
+          });
+        });
+    }
+
+    // Add new medicine
+    function addMedicine() {
+      const name = document.getElementById("name").value;
+      const price = document.getElementById("price").value;
+      const stock = document.getElementById("stock").value;
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, price, stock })
+      })
+      .then(res => res.json())
+      .then(() => {
+        loadMedicines();
+        document.getElementById("name").value = "";
+        document.getElementById("price").value = "";
+        document.getElementById("stock").value = "";
+      });
+    }
+
+    // Update medicine
+    function updateMedicine(id) {
+      const name = document.getElementById(`name-${id}`).value;
+      const price = document.getElementById(`price-${id}`).value;
+      const stock = document.getElementById(`stock-${id}`).value;
+      fetch(`${apiUrl}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, price, stock })
+      })
+      .then(res => res.json())
+      .then(() => loadMedicines());
+    }
+
+    // Delete medicine
+    function deleteMedicine(id) {
+      fetch(`${apiUrl}/${id}`, { method: "DELETE" })
+      .then(res => res.json())
+      .then(() => loadMedicines());
+    }
+
+    // Initial load
+    loadMedicines();
+  </script>
+</body>
+</html>
